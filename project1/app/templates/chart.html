@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sentiment Analysis of Restaurant Reviews</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            position: relative;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .chart-container {
+            margin: auto;
+            width: 80%;
+            margin-bottom: 20px;
+        }
+        .logout-form {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            text-align: right;
+        }
+        .logout-button {
+            padding: 10px 20px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .logout-button:hover {
+            background-color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+    <div class="logout-form">
+        <form method="POST" action="/logout">
+            <button type="submit" class="logout-button">Logout</button>
+        </form>
+    </div>
+    <h1>Sentiment Analysis of Restaurant Reviews</h1>
+    <div class="chart-container">{{ bar_chart|safe }}</div>
+    <div class="chart-container">{{ line_chart|safe }}</div>
+</body>
+</html>
