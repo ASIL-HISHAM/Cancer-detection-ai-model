@@ -3,18 +3,21 @@ import mysql.connector
 import plotly.express as px
 import plotly.io as pio
 import pandas as pd
+import sys
+from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = "a_very_secure_key_2025"
 
-# Database Connection
+# Initialize MySQL connection
 def get_db_connection():
     return mysql.connector.connect(host="localhost", user="root", password="", database="restaurant_reviews", unix_socket="/var/run/mysqld/mysqld.sock", ssl_disabled=True)
 
-# Initialize Users Table
-def init_users_table():
+# Initialize and populate database tables
+def init_database():
     conn = get_db_connection()
     cursor = conn.cursor()
+    # Create application_users table
     cursor.execute('''CREATE TABLE IF NOT EXISTS application_users (
                         userid VARCHAR(50) PRIMARY KEY,
                         password VARCHAR(50),
@@ -26,11 +29,20 @@ def init_users_table():
         ("user3", "pass789", "user3@example.com")
     ]
     cursor.executemany("INSERT IGNORE INTO application_users (userid, password, email) VALUES (%s, %s, %s)", users)
+
+    # Create login_logs table
+    cursor.execute('''CREATE TABLE IF NOT EXISTS login_logs (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        userid VARCHAR(50),
+                        login_time DATETIME,
+                        logout_time DATETIME,
+                        duration TIME,
+                        FOREIGN KEY (userid) REFERENCES application_users(userid))''')
     conn.commit()
     cursor.close()
     conn.close()
 
-init_users_table()
+init_database()
 
 # Routes
 @app.route('/')
@@ -40,7 +52,8 @@ def login():
         print(f"User {session['user']} is logged in, redirecting to display_chart")
         return redirect(url_for('display_chart'))
     print("No user in session, showing login page")
-    return render_template('login.html')
+    env_info = f"Running in: {sys.executable.split('/')[-3] if 'venv' in sys.executable else 'Global Python'}"
+    return render_template('login.html', env_info=env_info)
 
 @app.route('/login', methods=['POST'])
 def login_post():
@@ -52,20 +65,39 @@ def login_post():
     print(f"Attempting login for userid: {userid}, password: {password}")
     cursor.execute("SELECT * FROM application_users WHERE userid = %s AND password = %s", (userid, password))
     user = cursor.fetchone()
-    cursor.close()
-    conn.close()
     if user:
         print(f"Login successful for {userid}")
         session['user'] = userid
+        # Record login time
+        login_time = datetime.now()
+        cursor.execute("INSERT INTO login_logs (userid, login_time) VALUES (%s, %s)", (userid, login_time))
+        conn.commit()
+    cursor.close()
+    conn.close()
+    if user:
         return redirect(url_for('display_chart'))
     print("Login failed, invalid credentials")
-    return render_template('login.html', error="Invalid credentials")
+    env_info = f"Running in: {sys.executable.split('/')[-3] if 'venv' in sys.executable else 'Global Python'}"
+    return render_template('login.html', error="Invalid credentials", env_info=env_info)
 
 @app.route('/logout', methods=['POST'])
 def logout():
     print("Processing logout request")
     if 'user' in session:
-        print(f"User {session['user']} logged out")
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        userid = session['user']
+        logout_time = datetime.now()
+        # Update logout time and calculate duration
+        cursor.execute("SELECT login_time FROM login_logs WHERE userid = %s AND logout_time IS NULL ORDER BY login_time DESC LIMIT 1", (userid,))
+        login_time = cursor.fetchone()
+        if login_time:
+            login_time = login_time[0]
+            duration = logout_time - login_time
+            cursor.execute("UPDATE login_logs SET logout_time = %s, duration = %s WHERE userid = %s AND logout_time IS NULL ORDER BY login_time DESC LIMIT 1", 
+                           (logout_time, str(duration), userid))
+            conn.commit()
+        print(f"User {userid} logged out")
         session.pop('user', None)
     return redirect(url_for('login'))
 
@@ -132,7 +164,23 @@ def display_chart():
         bar_chart = "<p>Error loading bar chart.</p>"
         line_chart = "<p>Error loading line chart.</p>"
 
-    return render_template('chart.html', bar_chart=bar_chart, line_chart=line_chart)
+    env_info = f"Running in: {sys.executable.split('/')[-3] if 'venv' in sys.executable else 'Global Python'}"
+    return render_template('chart.html', bar_chart=bar_chart, line_chart=line_chart, env_info=env_info)
+
+@app.route('/logs')
+def view_logs():
+    print("Entering view_logs function")
+    if 'user' not in session or session['user'] != 'admin':
+        print("Unauthorized access to logs, redirecting to login")
+        return redirect(url_for('login'))
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM login_logs ORDER BY login_time")  # Reverse order (newest first)
+    logs = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    env_info = f"Running in: {sys.executable.split('/')[-3] if 'venv' in sys.executable else 'Global Python'}"
+    return render_template('logs.html', logs=logs, env_info=env_info)
 
 if __name__ == '__main__':
     print("Starting Flask app...")

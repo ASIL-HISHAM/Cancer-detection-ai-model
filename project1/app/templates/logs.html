@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login Logs</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 80%;
+            margin: 0 auto;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #2ecc71;
+            color: white;
+        }
+        .env-info {
+            font-size: 12px;
+            color: #666;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Login Logs</h1>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>User ID</th>
+            <th>Login Time</th>
+            <th>Logout Time</th>
+            <th>Duration</th>
+        </tr>
+        {% for log in logs %}
+        <tr>
+            <td>{{ log[0] }}</td>
+            <td>{{ log[1] }}</td>
+            <td>{{ log[2] }}</td>
+            <td>{{ log[3] if log[3] else 'N/A' }}</td>
+            <td>{{ log[4] if log[4] else 'N/A' }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <p class="env-info">Environment: {{ env_info }}</p>
+</body>
+</html>
